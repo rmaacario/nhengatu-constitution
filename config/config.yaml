@@ -19,7 +19,7 @@ nheengatu:
   running_header_pattern: "\\f?\"Mundu sa Turusu\" waá[^\\n]*\\n"
   strip_bell: true
   preamble_heading: "YUPIRUNGÁ RẼDEWÁ"
-  body_start_occurrence: 2
+  body_start_occurrence: 1
   preamble_end_pattern: "\\nSESEWÁRA"
   adct_start_pattern: "ŨBEU\\s+SÁ\\s+TA\\s+MŨDUSÁWA\\s+TURUSÚ\\s+WAÁ\\s+KUXIIMA"
   adct_start_occurrence: 2
