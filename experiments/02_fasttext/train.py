@@ -1,29 +1,49 @@
-# experiments/02_fasttext/train.py
+#!/usr/bin/env python3
+"""Train FastText models on Nheengatu and Portuguese corpora"""
+
 import fasttext
 from pathlib import Path
 
-BASE_DIR = Path(__file__).parent
-data_dir = BASE_DIR    
-out_dir  = BASE_DIR / "results"
-out_dir.mkdir(exist_ok=True)
+# Paths (relative to project root)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CORPUS_PT = PROJECT_ROOT / "data/processed/corpus_clean.pt"
+CORPUS_NHE = PROJECT_ROOT / "data/processed/corpus_clean.nhe"
+OUTPUT_DIR = PROJECT_ROOT / "experiments/02_fasttext/results"
 
-# Optional: retrain Portuguese at 300d if you want a matching from-scratch baseline
-# but we won't use it for the alignment with pretrained PT.
-print('Training Portuguese model on merged corpus (300d, optional)...')
-pt = fasttext.train_unsupervised(
-    str(data_dir / 'corpus_merged.pt'),
-    model='skipgram', dim=300, epoch=20,
-    minCount=1, minn=3, maxn=6, thread=4
-)
-pt.save_model(str(out_dir / 'model_merged_300d.pt.bin'))
-print(f'  Vocabulary: {len(pt.words)} words')
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-print('Training Nheengatu model on merged corpus (300d)...')
-nhe = fasttext.train_unsupervised(
-    str(data_dir / 'corpus_merged.nhe'),
-    model='skipgram', dim=300, epoch=20,
-    minCount=1, minn=3, maxn=6, thread=4
-)
-nhe.save_model(str(out_dir / 'model_merged.nhe.bin'))   # overwrites the 100d version
-print(f'  Vocabulary: {len(nhe.words)} words')
-print('Done.')
+print("="*60)
+print("FASTTEXT TRAINING")
+print("="*60)
+
+# Train Portuguese model
+print(f"\n📚 Training Portuguese model from {CORPUS_PT}")
+if CORPUS_PT.exists():
+    model_pt = fasttext.train_unsupervised(
+        str(CORPUS_PT),
+        model='skipgram',
+        dim=300,
+        epoch=10,
+        minCount=3
+    )
+    model_pt.save_model(str(OUTPUT_DIR / "model_clean.pt.bin"))
+    print(f"✅ Portuguese model saved ({OUTPUT_DIR / 'model_clean.pt.bin'})")
+else:
+    print(f"❌ Corpus not found: {CORPUS_PT}")
+
+# Train Nheengatu model
+print(f"\n📚 Training Nheengatu model from {CORPUS_NHE}")
+if CORPUS_NHE.exists():
+    model_nhe = fasttext.train_unsupervised(
+        str(CORPUS_NHE),
+        model='skipgram',
+        dim=300,
+        epoch=10,
+        minCount=3
+    )
+    model_nhe.save_model(str(OUTPUT_DIR / "model_clean.nhe.bin"))
+    print(f"✅ Nheengatu model saved ({OUTPUT_DIR / 'model_clean.nhe.bin'})")
+else:
+    print(f"❌ Corpus not found: {CORPUS_NHE}")
+
+print("\n✅ FastText training complete!")

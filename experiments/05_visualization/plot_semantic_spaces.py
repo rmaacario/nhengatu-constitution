@@ -4,6 +4,10 @@ from gensim.models import Word2Vec
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from pathlib import Path
+
+# Get project root
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 print("="*70)
 print("VISUALIZING SEMANTIC SPACES")
@@ -11,8 +15,28 @@ print("Portuguese vs Nheengatu")
 print("="*70)
 
 # Load models
-pt_model = Word2Vec.load("experiments/01_word2vec/results/pt_w2v_large.model")
-nhe_model = Word2Vec.load("experiments/01_word2vec/results/nhe_w2v_large.model")
+pt_model_path = PROJECT_ROOT / "experiments/01_word2vec/results/pt_w2v_large.model"
+nhe_model_path = PROJECT_ROOT / "experiments/01_word2vec/results/nhe_w2v_large.model"
+
+if not pt_model_path.exists():
+    print(f"❌ PT model not found: {pt_model_path}")
+    print("Run 'make exp-word2vec' first")
+    exit(1)
+
+if not nhe_model_path.exists():
+    print(f"❌ NHE model not found: {nhe_model_path}")
+    print("Run 'make exp-word2vec' first")
+    exit(1)
+
+pt_model = Word2Vec.load(str(pt_model_path))
+nhe_model = Word2Vec.load(str(nhe_model_path))
+
+print(f"✅ PT model: {len(pt_model.wv)} words")
+print(f"✅ NHE model: {len(nhe_model.wv)} words")
+
+# Create output directory
+plots_dir = PROJECT_ROOT / "experiments/05_visualization/plots"
+plots_dir.mkdir(parents=True, exist_ok=True)
 
 # 1. Plot: Most frequent words in both languages
 fig, axes = plt.subplots(1, 2, figsize=(14, 6))
@@ -46,7 +70,7 @@ axes[1].set_xlabel('PC1')
 axes[1].set_ylabel('PC2')
 
 plt.tight_layout()
-plt.savefig('experiments/05_visualization/plots/freq_words_pca.png', dpi=150)
+plt.savefig(plots_dir / 'freq_words_pca.png', dpi=150)
 print("✅ Saved: freq_words_pca.png")
 
 # 2. Plot: Semantic fields comparison
@@ -87,7 +111,7 @@ for idx, (title, (pt_words, nhe_words)) in enumerate(semantic_fields.items()):
     axes[idx, 2].legend()
 
 plt.tight_layout()
-plt.savefig('experiments/05_visualization/plots/semantic_fields.png', dpi=150)
+plt.savefig(plots_dir / 'semantic_fields.png', dpi=150)
 print("✅ Saved: semantic_fields.png")
 
 # 3. Plot: Singular-plural pairs similarity
@@ -110,7 +134,7 @@ for i, (bar, sim) in enumerate(zip(bars, similarities)):
     ax.text(sim + 0.001, bar.get_y() + bar.get_height()/2, f'{sim:.3f}', va='center')
 
 plt.tight_layout()
-plt.savefig('experiments/05_visualization/plots/singular_plural_similarity.png', dpi=150)
+plt.savefig(plots_dir / 'singular_plural_similarity.png', dpi=150)
 print("✅ Saved: singular_plural_similarity.png")
 
 print("\n✅ All visualizations saved to experiments/05_visualization/plots/")
