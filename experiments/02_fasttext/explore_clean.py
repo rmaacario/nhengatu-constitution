@@ -3,39 +3,52 @@ import fasttext, numpy as np, json
 from collections import Counter
 from pathlib import Path
 
-pt  = fasttext.load_model('experiments/02_fasttext/results/model_clean.pt.bin')
-nhe = fasttext.load_model('experiments/02_fasttext/results/model_clean.nhe.bin')
+BASE_DIR = Path(__file__).parent
+PROJECT_ROOT = BASE_DIR.parent.parent
+
+# Load models
+pt = fasttext.load_model(str(BASE_DIR / 'results/model_clean.pt.bin'))
+nhe = fasttext.load_model(str(BASE_DIR / 'results/model_clean.nhe.bin'))
 
 print('=' * 60)
 print('PORTUGUESE NEIGHBORS (clean)')
 print('=' * 60)
 for word in ['direito', 'lei', 'liberdade', 'povo', 'estado', 'poder', 'cidadão']:
-    neighbors = pt.get_nearest_neighbors(word, k=5)
-    print(f'\n{word}:')
-    for score, n in neighbors:
-        print(f'  {n} ({score:.3f})')
+    if word in pt.words:
+        neighbors = pt.get_nearest_neighbors(word, k=5)
+        print(f'\n{word}:')
+        for score, n in neighbors:
+            print(f'  {n} ({score:.3f})')
 
 print()
 print('=' * 60)
 print('NHEENGATU NEIGHBORS (clean)')
 print('=' * 60)
-data = json.load(open('sentence_output_cli/sentence_pairs.json', encoding='utf-8'))
+
+# Load corpus from correct location
+corpus_path = PROJECT_ROOT / 'data/processed/corpus_clean.json'
+with open(corpus_path, encoding='utf-8') as f:
+    data = json.load(f)
+
 nhe_words = []
 for pair in data:
     nhe_words.extend(pair['nhe'].lower().split())
+
 skip = {'ta','kuá','u','a','i','e','o','de','da','do','se','na','no','asui','upé','waá'}
-top = [w for w,c in Counter(nhe_words).most_common(200)
-       if len(w) > 3 and w not in skip][:12]
+top = [w for w,c in Counter(nhe_words).most_common(200) if len(w) > 3 and w not in skip][:12]
+
 for word in top:
-    neighbors = nhe.get_nearest_neighbors(word, k=5)
-    print(f'\n{word}:')
-    for score, n in neighbors:
-        print(f'  {n} ({score:.3f})')
+    if word in nhe.words:
+        neighbors = nhe.get_nearest_neighbors(word, k=5)
+        print(f'\n{word}:')
+        for score, n in neighbors:
+            print(f'  {n} ({score:.3f})')
 
 print()
 print('=' * 60)
 print('MORPHOLOGY: -ita plural suffix (clean)')
 print('=' * 60)
+
 ita = [w for w in nhe.words if w.endswith('ita') and len(w) > 4]
 print(f'Words ending in -ita: {len(ita)}')
 
@@ -45,10 +58,10 @@ for w in ita:
     if len(root) > 2 and root in nhe.words:
         v1 = nhe.get_word_vector(w)
         v2 = nhe.get_word_vector(root)
-        sim = float(np.dot(v1,v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
+        sim = float(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
         pairs.append((root, w, sim))
-pairs.sort(key=lambda x: -x[2])
 
+pairs.sort(key=lambda x: -x[2])
 print(f'Root-plural pairs found: {len(pairs)}')
 print()
 print('Top root -> plural pairs:')
