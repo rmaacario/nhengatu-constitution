@@ -17,6 +17,7 @@ A bilingual parallel corpus pipeline that extracts and aligns Portuguese–Nheen
 ## 📊 Current Data
 
 - **5,028 sentence pairs** → `data/processed/merged_5028_pairs.json`
+- **4,997 sentence pairs** → `data/processed/corpus_clean.json` (cleaned for fine-tuning)
 - **High-confidence subset (~671 pairs)** → `sentence_output/`
 - **Word2Vec models** → `experiments/01_word2vec/results/`
 - **XLM-R model** → `experiments/03_crosslingual/results/`
@@ -49,9 +50,16 @@ source venv/bin/activate
 # Install dependencies
 make install
 
-# Place PDFs in data/raw/
-cp /path/to/constituicao-pt.pdf data/raw/
-cp /path/to/constituicao-nhe.pdf data/raw/
+# Download source PDFs
+# Portuguese Constitution
+wget https://www2.senado.leg.br/bdsf/bitstream/handle/id/602786/CF_EC116_2022.pdf
+
+# Nheengatu Constitution
+wget https://www.cnj.jus.br/wp-content/uploads/2023/11/constituicao-nheengatu-web.pdf
+
+# Move and rename
+mv CF_EC116_2022.pdf data/raw/constituicao-pt.pdf
+mv constituicao-nheengatu-web.pdf data/raw/constituicao-nhe.pdf
 
 # Run pipeline
 make run
@@ -62,15 +70,37 @@ make run
 ## 📁 Project Structure
 
 ```bash
-constitution-corpus/
-├── src/              # Pipeline code
+nhengatu-constitution/
+├── src/corpus_pipeline/     # Pipeline code (extract, clean, align, export)
 ├── data/
-│   ├── processed/    # Final dataset (5,028 pairs)
-│   └── raw/          # Original PDFs
-├── sentence_output/  # Current alignments
-├── experiments/      # Research experiments
-├── tests/            # Unit tests
-└── config/           # Configuration
+│   ├── processed/           
+│   │   ├── corpus_clean.json      (4,997 pairs) ← XLM-R fine-tuning
+│   │   ├── corpus_merged.json      (5,028 pairs) ← raw merged corpus
+│   │   ├── merged_5028_pairs.json  (5,028 pairs) ← final aligned pairs
+│   │   └── xlmr_train_clean.json   (4,997 pairs) ← training data
+│   └── raw/                       # Original PDFs (git-ignored)
+│       ├── constituicao-pt.pdf
+│       └── constituicao-nhe.pdf
+├── sentence_output/               # Current sentence alignments (671 pairs)
+│   ├── sentence_pairs.json
+│   ├── sentence_pairs.tsv
+│   └── train.nhe / train.pt
+├── experiments/                   # Research experiments
+│   ├── 01_word2vec/              # Word embeddings
+│   ├── 02_fasttext/              # FastText models (with symlinks to data/)
+│   ├── 03_crosslingual/          # VecMap & XLM-R fine-tuning
+│   ├── 05_visualization/         # Semantic visualizations
+│   └── 06_typological_analysis/  # Language comparison
+├── notebooks/colab/               # Google Colab notebooks
+│   └── finetune_xlmr.ipynb       # XLM-R fine-tuning demo
+├── tests/                         # Unit tests
+├── config/                        # Configuration files
+│   └── config.yaml
+├── output/                        # Pipeline outputs (article/unit alignment)
+├── scripts/                       # Utility scripts
+├── Makefile                       # Build automation
+├── requirements.txt               # Python dependencies
+└── README.md                      # Documentation
 ```
 
 ---
