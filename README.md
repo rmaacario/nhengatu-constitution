@@ -158,6 +158,97 @@ Edit `config/config.yaml`:
 
 ---
 
+## 🔬 Running Experiments
+
+### Word2Vec (01_word2vec)
+
+```bash
+make exp-word2vec
+# Or manually:
+cd experiments/01_word2vec && python train_word2vec.py
+```
+
+Trains word embeddings with skip-gram (window=3 and window=10).  
+Models saved to `experiments/01_word2vec/results/`
+
+---
+
+### FastText (02_fasttext)
+
+```bash
+make exp-fasttext
+# Or manually:
+cd experiments/02_fasttext && python train.py
+```
+
+>Note: On macOS, use Conda environment (see Quick Start).  
+Pre-trained models (~2.3GB each) available in `experiments/02_fasttext/results/`
+
+---
+
+### Cross-lingual Alignment (03_crosslingual)
+
+```bash
+make exp-crosslingual
+# Or manually:
+cd experiments/03_crosslingual && python align_vecmap.py
+```
+
+Aligns Portuguese and Nheengatu embedding spaces using VecMap.
+
+---
+
+### XLM-R Fine-tuning (03_crosslingual)
+
+```bash
+make exp-xlmr
+```
+
+Recommended: Run on Google Colab (GPU required)  
+https://colab.research.google.com/github/rmaacario/nhengatu-constitution/blob/main/notebooks/colab/finetune_xlmr.ipynb
+
+Results (4,997 training pairs):
+
+- Precision@1: 24.7%
+- Precision@5: 50.4%
+- MRR: 0.3707
+
+---
+
+### Visualization (05_visualization)
+
+```bash
+make exp-viz
+# Or manually:
+cd experiments/05_visualization && python plot_semantic_spaces.py
+```
+
+Generates:
+
+- `freq_words_pca.png`
+- `semantic_fields.png`
+- `singular_plural_similarity.png`
+
+---
+
+### Typological Analysis (06_typological_analysis)
+
+```bash
+make exp-typology
+# Or manually:
+cd experiments/06_typological_analysis && python compare_por_yrl.py
+```
+
+---
+
+### Run All Experiments
+
+```bash
+make exp-all
+```
+
+Runs Word2Vec, visualizations, and typological analysis (FastText and XLM-R require separate setup).
+
 ## 🧪 Testing
 
 ```bash

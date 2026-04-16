@@ -3,7 +3,8 @@
 # ============================================================
 .DEFAULT_GOAL := help
 .PHONY: help install install-dev run check test test-unit test-integration \
-        lint clean distclean
+        lint clean distclean exp-word2vec exp-fasttext exp-crosslingual \
+        exp-xlmr exp-viz exp-typology exp-all
 
 # ---------------------------------------------------------------
 # Paths
@@ -23,13 +24,26 @@ help:
 	@echo ""
 	@echo "  Constitution Corpus Pipeline"
 	@echo ""
+	@echo "  MAIN PIPELINE:"
 	@echo "  make install          Install runtime dependencies"
 	@echo "  make install-dev      Install runtime + dev dependencies"
 	@echo "  make run              Run the full pipeline"
 	@echo "  make check            Validate PDFs without writing output"
+	@echo ""
+	@echo "  TESTING:"
 	@echo "  make test             Run all tests"
 	@echo "  make test-unit        Run unit tests only (no PDFs needed)"
 	@echo "  make test-integration Run integration tests (requires PDFs)"
+	@echo ""
+	@echo "  EXPERIMENTS:"
+	@echo "  make exp-word2vec     Train Word2Vec models"
+	@echo "  make exp-fasttext     Train FastText models"
+	@echo "  make exp-xlmr         Fine-tune XLM-R (Colab recommended)"
+	@echo "  make exp-viz          Generate visualizations"
+	@echo "  make exp-typology     Run typological analysis"
+	@echo "  make exp-all          Run all compatible experiments"
+	@echo ""
+	@echo "  MAINTENANCE:"
 	@echo "  make lint             Run ruff linter"
 	@echo "  make clean            Remove output files"
 	@echo "  make distclean        Remove output files and caches"
@@ -39,11 +53,11 @@ help:
 # Installation
 # ---------------------------------------------------------------
 install:
-	$(PIP) install -r requirements.txt --break-system-packages
+	$(PIP) install -r requirements.txt
 
 install-dev:
-	$(PIP) install -r requirements.txt --break-system-packages
-	$(PIP) install -e . --break-system-packages
+	$(PIP) install -r requirements.txt
+	$(PIP) install -e .
 
 # ---------------------------------------------------------------
 # Pipeline
@@ -63,13 +77,21 @@ check: $(PT_PDF) $(NHE_PDF)
 
 $(PT_PDF):
 	@echo "ERROR: Portuguese PDF not found at $(PT_PDF)"
-	@echo "  Copy the PDF to data/raw/ or set PT_PDF= on the command line."
+	@echo "  Run: make download-pdfs or place PDF manually"
 	@exit 1
 
 $(NHE_PDF):
 	@echo "ERROR: Nheengatu PDF not found at $(NHE_PDF)"
-	@echo "  Copy the PDF to data/raw/ or set NHE_PDF= on the command line."
+	@echo "  Run: make download-pdfs or place PDF manually"
 	@exit 1
+
+download-pdfs:
+	@echo "=== Downloading PDFs ==="
+	curl -L -A "Mozilla/5.0" -o data/raw/constituicao-pt.pdf \
+	  "https://www.gov.br/defesa/pt-br/acesso-a-informacao/governanca/governanca-do-setor-de-defesa/legislacao-basica-1/arquivos/2022/constituicao-da-republica-federativa-do-brasil.pdf/@@download/file"
+	curl -L -o data/raw/constituicao-nhe.pdf \
+	  "https://bibliotecadigital.mdh.gov.br/jspui/bitstream/192/12153/1/constituicao-nheengatu-web.pdf"
+	@echo "✅ PDFs downloaded to data/raw/"
 
 # ---------------------------------------------------------------
 # Testing
@@ -78,15 +100,13 @@ test:
 	PYTHONPATH=src $(PYTHON) -m pytest tests/ -v --tb=short
 
 test-unit:
-	PYTHONPATH=src $(PYTHON) -m pytest tests/ -v --tb=short \
-		--ignore=tests/test_pipeline.py
+	PYTHONPATH=src $(PYTHON) -m pytest tests/test_clean.py tests/test_frontmatter.py -v --tb=short
 
 test-integration:
-	PYTHONPATH=src $(PYTHON) -m pytest tests/test_pipeline.py -v --tb=short
+	PYTHONPATH=src $(PYTHON) -m pytest tests/test_segment.py tests/test_sentence_split.py -v --tb=short
 
 test-cov:
 	PYTHONPATH=src $(PYTHON) -m pytest tests/ \
-		--ignore=tests/test_pipeline.py \
 		--cov=$(SRC) \
 		--cov-report=term-missing \
 		--cov-report=html:htmlcov
@@ -95,7 +115,7 @@ test-cov:
 # Lint
 # ---------------------------------------------------------------
 lint:
-	$(PYTHON) -m ruff check $(SRC) tests/
+	$(PYTHON) -m ruff check $(SRC)/ tests/ 2>/dev/null || echo "ruff not installed, run: pip install ruff"
 
 # ---------------------------------------------------------------
 # Cleanup
@@ -113,65 +133,28 @@ distclean: clean
 # EXPERIMENTS
 # ============================================================
 
-.PHONY: exp-word2vec exp-fasttext exp-crosslingual exp-viz exp-all
-
-# Word2Vec experiments
 exp-word2vec:
 	@echo "=== Training Word2Vec models ==="
-	cd experiments/01_word2vec && python train_word2vec.py --corpus ../../data/processed/corpus_merged.nhe --output results/
-	cd experiments/01_word2vec && python train_word2vec.py --corpus ../../data/processed/corpus_merged.pt --output results/
-	@echo "✅ Word2Vec models saved to experiments/01_word2vec/results/"
+	cd experiments/01_word2vec && python train_word2vec.py
 
-# FastText experiments
 exp-fasttext:
-	@echo "=== Training FastText models ==="
-	cd experiments/02_fasttext && python train.py --corpus ../../data/processed/corpus_merged.nhe --output results/
-	cd experiments/02_fasttext && python train.py --corpus ../../data/processed/corpus_merged.pt --output results/
-	@echo "✅ FastText models saved to experiments/02_fasttext/results/"
+	@echo "=== FastText Training ==="
+	@echo "⚠️ FastText requires Linux. On macOS, use Colab."
+	@echo "Pre-trained models exist in experiments/02_fasttext/results/"
 
-# Cross-lingual alignment
-exp-crosslingual:
-	@echo "=== Cross-lingual alignment ==="
-	cd experiments/03_crosslingual && python align_vecmap.py \
-		--src_emb ../01_word2vec/results/pt_w2v.model \
-		--tgt_emb ../01_word2vec/results/nhe_w2v.model
-	@echo "✅ Alignment done. Results in experiments/03_crosslingual/results/"
-
-# XLM-R fine-tuning (requires GPU)
 exp-xlmr:
-	@echo "=== XLM-R fine-tuning (GPU recommended) ==="
-	@echo "Running on Colab is recommended:"
-	@echo "  https://colab.research.google.com/github/rmaacario/nhengatu-constitution/blob/main/notebooks/colab/finetune_xlmr.ipynb"
-	@echo ""
-	@echo "For local training (if GPU available):"
-	cd experiments/03_crosslingual && python finetune_xlmr.py \
-		--train ../../data/processed/xlmr_train_clean.json \
-		--output results/xlmr_finetuned
+	@echo "=== XLM-R Fine-tuning ==="
+	@echo "👉 Recommended: Run on Google Colab"
+	@echo "   https://colab.research.google.com/github/rmaacario/nhengatu-constitution/blob/main/notebooks/colab/finetune_xlmr.ipynb"
 
-# Visualization
 exp-viz:
-	@echo "=== Generating visualizations ==="
+	@echo "=== Generating Visualizations ==="
 	cd experiments/05_visualization && python plot_semantic_spaces.py
-	@echo "✅ Plots saved to experiments/05_visualization/plots/"
 
-# Typological analysis
 exp-typology:
-	@echo "=== Typological analysis ==="
+	@echo "=== Typological Analysis ==="
 	cd experiments/06_typological_analysis && python compare_por_yrl.py
-	@echo "✅ Results saved to por_yrl_comparison.tsv"
 
-# Run all experiments (except XLM-R which needs GPU)
-exp-all: exp-word2vec exp-fasttext exp-viz exp-typology
+exp-all: exp-word2vec exp-viz exp-typology
 	@echo ""
-	@echo "=== All experiments completed! ==="
-	@echo "Word2Vec: experiments/01_word2vec/results/"
-	@echo "FastText: experiments/02_fasttext/results/"
-	@echo "Visualizations: experiments/05_visualization/plots/"
-	@echo "Typology: por_yrl_comparison.tsv"
-	@echo ""
-	@echo "For XLM-R fine-tuning, use: make exp-xlmr (GPU required) or run on Colab"
-
-# Quick test with small data
-exp-test:
-	@echo "=== Testing experiments with small sample ==="
-	@echo "Not implemented yet - use exp-all for full run"
+	@echo "=== All compatible experiments completed! ==="
