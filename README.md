@@ -1,3 +1,5 @@
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rmaacario/nhengatu-constitution/blob/main/notebooks/colab/finetune_xlmr.ipynb)
+
 # Nheengatu Constitution Corpus
 
 > **Dataset**: 5,028 Portuguese–Nheengatu sentence pairs  
@@ -40,8 +42,8 @@ brew install poppler
 
 ```bash
 # Clone repository
-git clone <your-repo-url>
-cd constitution-corpus
+git clone https://github.com/rmaacario/nhengatu-constitution.git
+cd nhengatu-constitution
 
 # Create virtual environment
 python -m venv venv
@@ -50,16 +52,14 @@ source venv/bin/activate
 # Install dependencies
 make install
 
-# Download source PDFs
+# Download source PDFs (comandos CORRETOS)
 # Portuguese Constitution
-wget https://www2.senado.leg.br/bdsf/bitstream/handle/id/602786/CF_EC116_2022.pdf
+curl -L -A "Mozilla/5.0" -o data/raw/constituicao-pt.pdf \
+  "https://www.gov.br/defesa/pt-br/acesso-a-informacao/governanca/governanca-do-setor-de-defesa/legislacao-basica-1/arquivos/2022/constituicao-da-republica-federativa-do-brasil.pdf/@@download/file"
 
 # Nheengatu Constitution
-wget https://www.cnj.jus.br/wp-content/uploads/2023/11/constituicao-nheengatu-web.pdf
-
-# Move and rename
-mv CF_EC116_2022.pdf data/raw/constituicao-pt.pdf
-mv constituicao-nheengatu-web.pdf data/raw/constituicao-nhe.pdf
+curl -L -o data/raw/constituicao-nhe.pdf \
+  "https://bibliotecadigital.mdh.gov.br/jspui/bitstream/192/12153/1/constituicao-nheengatu-web.pdf"
 
 # Run pipeline
 make run
