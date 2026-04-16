@@ -186,26 +186,24 @@ Pre-trained models (~2.3GB each) available in `experiments/02_fasttext/results/`
 
 ---
 
-### Cross-lingual Alignment (03_crosslingual)
+### Cross-lingual Experiments (03_crosslingual)
 
-```bash
-make exp-crosslingual
-# Or manually:
-cd experiments/03_crosslingual && python align_vecmap.py
-```
+**Available commands:**
 
-Aligns Portuguese and Nheengatu embedding spaces using VecMap.
+| Command | Description |
+|---------|-------------|
+| `make exp-crosslingual` | VecMap alignment (embedding space alignment) |
+| `make exp-bm25` | BM25 baseline (character n-gram retrieval) |
+| `make exp-xlmr-base` | XLM-R base (zero-shot, no fine-tuning) |
+| `make exp-xlmr` | XLM-R fine-tuning (⚠️ GPU required - runs on Colab) |
+| `make exp-xlmr-finetuned` | Evaluate fine-tuned model (after Colab) |
 
----
-
-### XLM-R Fine-tuning (03_crosslingual)
+**To fine-tune XLM-R:**
 
 ```bash
 make exp-xlmr
-```
-
-Recommended: Run on Google Colab (GPU required)  
-https://colab.research.google.com/github/rmaacario/nhengatu-constitution/blob/main/notebooks/colab/finetune_xlmr.ipynb
+# Opens Colab notebook with GPU
+````
 
 Results (4,997 training pairs):
 

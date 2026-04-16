@@ -142,3 +142,16 @@ exp-fasttext:
 	@echo ""
 	@echo "=== Exploring FastText Models ==="
 	cd experiments/02_fasttext && python explore_clean.py
+
+exp-bm25:
+	@echo "=== BM25 Baseline ==="
+	cd experiments/03_crosslingual && python sentence_retrieval.py
+
+exp-xlmr-base:
+	@echo "=== XLM-R Base (zero-shot) ==="
+	cd experiments/03_crosslingual && python sentence_retrieval_xlmr.py
+
+exp-xlmr-finetuned:
+	@echo "=== XLM-R Fine-tuned ==="
+	@echo "⚠️ First run Colab notebook to get fine-tuned model"
+	cd experiments/03_crosslingual && python sentence_retrieval_xlmr_clean.py
