@@ -1,13 +1,25 @@
-# Constitution Corpus Pipeline
+# Nheengatu Constitution Corpus
 
-A bilingual parallel corpus pipeline that extracts Portuguese–Nheengatu aligned text from the Brazilian Constitution (1988).
+> **Dataset**: 5,028 Portuguese–Nheengatu sentence pairs  
+> **Focus**: low-resource NLP, cross-lingual alignment, indigenous language preservation
+
+A bilingual parallel corpus pipeline that extracts and aligns Portuguese–Nheengatu text from the Brazilian Constitution (1988).
 
 ---
 
 ## 📚 Corpus Sources
 
-- **Portuguese**: Senado Federal edition, compiled up to EC 116/2022  
-- **Nheengatu**: *Mundu Sa Turusu Waá* translation (CNJ/STF, 2023)
+- **Portuguese**: Senado Federal edition (EC 116/2022)  
+- **Nheengatu**: *Mundu Sa Turusu Waá* (CNJ/STF, 2023)
+
+---
+
+## 📊 Current Data
+
+- **5,028 sentence pairs** → `data/processed/merged_5028_pairs.json`
+- **High-confidence subset (~671 pairs)** → `sentence_output/`
+- **Word2Vec models** → `experiments/01_word2vec/results/`
+- **XLM-R model** → `experiments/03_crosslingual/results/`
 
 ---
 
@@ -23,7 +35,7 @@ sudo apt install poppler-utils
 brew install poppler
 ```
 
-### Installation
+### Installation & Run
 
 ```bash
 # Clone repository
@@ -47,33 +59,18 @@ make run
 
 ---
 
-## 📊 Output Files
-
-Outputs are written to `output/`:
-
-| File | Description | Count |
-|------|------------|------|
-| corpus_articles.json | Article-level pairs | 250 |
-| corpus_units.json | Paragraph-level pairs | ~860 |
-| corpus_units.tsv | TSV format | ~860 |
-| corpus.pt / corpus.nhe | Moses format | ~860 |
-| alignment_report.json | Quality metrics | — |
-
----
-
 ## 📁 Project Structure
 
 ```bash
 constitution-corpus/
-├── src/corpus_pipeline/   # Pipeline code
-├── sentence_output/       # Sentence alignments (~5k pairs)
+├── src/              # Pipeline code
 ├── data/
-│   ├── processed/         # Final corpus
-│   └── raw/               # Original PDFs (git-ignored)
-├── experiments/           # Research experiments
-├── tests/                 # Unit tests
-├── config/                # Configuration
-└── scripts/               # Utilities
+│   ├── processed/    # Final dataset (5,028 pairs)
+│   └── raw/          # Original PDFs
+├── sentence_output/  # Current alignments
+├── experiments/      # Research experiments
+├── tests/            # Unit tests
+└── config/           # Configuration
 ```
 
 ---
@@ -90,15 +87,12 @@ make install  # Install dependencies
 ### CLI
 
 ```bash
-# Run with defaults
 corpus-pipeline run
 
-# Custom paths
 corpus-pipeline run \
   --pt data/raw/constituicao-pt.pdf \
   --nhe data/raw/constituicao-nhe.pdf
 
-# Validate only
 corpus-pipeline check \
   --pt data/raw/constituicao-pt.pdf \
   --nhe data/raw/constituicao-nhe.pdf
@@ -117,8 +111,6 @@ Edit `config/config.yaml`:
 ---
 
 ## 🔧 Known Fixups
-
-The pipeline automatically corrects known issues in the Nheengatu PDF:
 
 - `Art 102.` → `Art. 102.`
 - `Art.. 158.` → `Art. 158.`
@@ -139,10 +131,10 @@ The pipeline automatically corrects known issues in the Nheengatu PDF:
 ## 🧪 Testing
 
 ```bash
-make test-unit        # Unit tests only
-make test-integration # Requires PDFs
-make test             # All tests
-make test-cov         # Coverage report
+make test-unit
+make test-integration
+make test
+make test-cov
 ```
 
 ---
@@ -156,22 +148,16 @@ make test-cov         # Coverage report
 
 ---
 
-## 🤝 Contributing
-
-- Fork repository
-- Create feature branch
-- Add tests
-- Run `make test`
-- Submit pull request
-
----
-
 ## 📄 License
 
-[Your license]
+MIT License
+
+Copyright (c) 2024 Rafael Macário
 
 ---
 
 ## 📧 Contact
 
-[Your contact information]
+Rafael Macário  
+Email: [rafael.macario@usp.br](mailto:rafael.macario@usp.br)  
+Repository: https://github.com/rmaacario/nhengatu-constitution
