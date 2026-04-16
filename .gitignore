@@ -1,0 +1,103 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+VENV/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+VENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Large model files (keep structure, ignore binaries)
+*.model
+*.bin
+*.safetensors
+*.pth
+*.pt
+*.h5
+*.npy
+
+# Data files (keep structure, ignore raw data)
+*.pdf
+*.numbers
+*.tar.gz
+*.zip
+
+# Old experiments and backups
+old_experiments/
+data/backup/
+scripts/legacy/
+
+# Logs
+*.log
+pipeline_output.log
+
+# Coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary
+*.tmp
+*.temp
+*.bak
+*.orig
+*~
+
+# Keep output structure but ignore files
+output/
+!output/.gitkeep
+
+# Keep sentence_output structure but ignore large files
+sentence_output/*.model
+sentence_output/*.bin
+
+# Keep data/raw but ignore PDFs
+data/raw/*.pdf
+!data/raw/.gitkeep
+archive/
+*.tar.gz
+*.png
+adct_only.tsv
+high_confidence_pairs.tsv
+main_body.tsv

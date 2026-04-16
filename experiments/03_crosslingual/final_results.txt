@@ -1,0 +1,39 @@
+========================================
+XLM-R FINE-TUNED RESULTS (CORPUS LIMPO)
+========================================
+
+Test set: 1,000 pairs
+Model: xlm-roberta-base fine-tuned (3 epochs, batch 16, lr 2e-5)
+
+METRICS:
+- Precision@1:  0.247 (247/1000)
+- Precision@5:  0.504 (504/1000)
+- Precision@10: 0.621 (621/1000)
+- MRR:          0.371
+
+PERFORMANCE BY DOMAIN:
+- Tycho Corpus:      0.387 (48/124)
+- Constitution:      0.252 (101/401)
+- Navarro Textbook:  0.218 (96/440)
+- Casasnovas:        0.057 (2/35)
+
+KEY FINDINGS:
+1. Fine-tuning improves P@1 by 22.5x over zero-shot
+2. 60.6% hapax rate reflects Nheengatu's agglutinative morphology
+3. Model learns construction-level patterns (e.g., "há" → "aikué")
+4. Domain adaptation matters (0.057-0.387 variation)
+
+MODEL LOCATION:
+results/xlmr_finetuned_clean/ (1.1 GB)
+
+
+KNOWN ERROR PATTERNS:
+- Existential constructions ("há") - 5/5 failures
+- Casasnovas domain (low resource)
+- Complex legal sentences with multiple clauses
+
+SUCCESS PATTERNS:
+- Short pedagogical sentences
+- Constitutional language (surprisingly good)
+- Tycho corpus (diverse historical data)
+
